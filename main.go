@@ -25,7 +25,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	CursorDraw(screen)
 	NoiseDebug()
 	//MazeDraw(screen)
-	
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {

@@ -19,7 +19,7 @@ var CursorIMG *ebiten.Image
 var MainPlayer struct {
 	PosX 				float64
 	PosY 				float64
-	PosZ 				float64
+	PosZ 				uint8
 	Direction 			float64
 
 	SpeedX 				float64
@@ -78,7 +78,10 @@ func PlayerPhysics() {
 		return
 	}
 
-	
+	// Get the player's "z level"; the getNoiseAt function accounts for player position, so this is directly where the player is
+	MainPlayer.PosZ = getNoiseAt(8,8)
+
+	// Check what key they're pressing and modify their speed values accordingly
 	if((ebiten.IsKeyPressed(ebiten.KeyArrowLeft) || ebiten.IsKeyPressed(ebiten.KeyA)) && MainPlayer.SpeedX > -MainPlayer.TopSpeed) {
 		MainPlayer.SpeedX -= MainPlayer.Acceleration
 	}
@@ -92,13 +95,22 @@ func PlayerPhysics() {
 		MainPlayer.SpeedY += MainPlayer.Acceleration
 	}
 	
+	// Make sure their speed always eventually returns to 0.
 	if(MainPlayer.SpeedX > 0) {MainPlayer.SpeedX -= MainPlayer.Acceleration/2}
 	if(MainPlayer.SpeedY > 0) {MainPlayer.SpeedY -= MainPlayer.Acceleration/2}
 	if(MainPlayer.SpeedX < 0) {MainPlayer.SpeedX += MainPlayer.Acceleration/2}
 	if(MainPlayer.SpeedY < 0) {MainPlayer.SpeedY += MainPlayer.Acceleration/2}
 
+	// What z-level are they at?
+	// If they're below what's considered sea level, slow them down.
+	/*if(MainPlayer.PosZ >= seaLevel) {
+		MainPlayer.SpeedX /= 2
+		MainPlayer.SpeedY /= 2
+	}*/
+
 	MainPlayer.PosX += MainPlayer.SpeedX
 	MainPlayer.PosY += MainPlayer.SpeedY
+
 }
 
 
