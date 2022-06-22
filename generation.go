@@ -15,13 +15,13 @@ import (
 )
 
 // Data relating to the noise map
+var resolution int = 4
+
 var noiseMaps[] *perlin.Perlin
 var samples = 15;
 var alphaMod = 1.0;
-var betaMod = 0.001;
+var betaMod = (0.001*float64(resolution/2));
 var seed int64;
-
-var resolution int = 2
 
 // Data relating to the terrain itself
 var seaLevel uint8 = 240
@@ -62,7 +62,7 @@ func NoiseDraw(screen *ebiten.Image) {
 			// Finally, set the color of the terrain, but set a different one based on the value
 			// (todo: add a proper color map system)
 
-			var red, green, blue uint8 = 0, 0, 0
+			/*var red, green, blue uint8 = 0, 0, 0
 			switch {
 				// water
 				case value >= seaLevel-40: 		
@@ -84,13 +84,13 @@ func NoiseDraw(screen *ebiten.Image) {
 					blue = value/4
 					red = value/4
 					green = value
-			}
+			}*/
 
 			// Otherwise add it to the image
 			img.Set(x, y, color.NRGBA{
-				R: red,
-				G: green,
-				B: blue,
+				R: value,
+				G: value,
+				B: value,
 				A: 255,
 			})
 		}

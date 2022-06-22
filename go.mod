@@ -3,7 +3,6 @@ module github.com/IoIxD/FunnyWarsShooterProject
 go 1.18
 
 require (
-	github.com/anthonynsimon/bild v0.13.0
 	github.com/aquilax/go-perlin v1.1.0
 	github.com/hajimehoshi/ebiten/v2 v2.3.4
 )
