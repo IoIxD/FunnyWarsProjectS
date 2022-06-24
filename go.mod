@@ -1,4 +1,4 @@
-module github.com/IoIxD/FunnyWarsShooterProject
+module github.com/IoIxD/FunnyWarsProjectS
 
 go 1.18
 
