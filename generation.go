@@ -1,7 +1,7 @@
 package main
 
 // Functions for the perlin noise that makes up the world generation.
-
+/*
 import (
 	"time"
 	"image"
@@ -62,7 +62,8 @@ func NoiseDraw(screen *ebiten.Image) {
 			// Finally, set the color of the terrain, but set a different one based on the value
 			// (todo: add a proper color map system)
 
-			/*var red, green, blue uint8 = 0, 0, 0
+			"""
+			var red, green, blue uint8 = 0, 0, 0
 			switch {
 				// water
 				case value >= seaLevel-40: 		
@@ -84,7 +85,8 @@ func NoiseDraw(screen *ebiten.Image) {
 					blue = value/4
 					red = value/4
 					green = value
-			}*/
+			}
+			"""
 
 			// Otherwise add it to the image
 			img.Set(x, y, color.NRGBA{
@@ -160,3 +162,4 @@ func NoiseDebug() {
 		seaLevel--
 	}
 }
+*/
