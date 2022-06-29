@@ -1,165 +1,164 @@
 package main
 
 // Functions for the perlin noise that makes up the world generation.
-/*
+
 import (
 	"time"
-	"image"
-	_ "image/png"
-	"image/color"
 	"math"
-	"fmt"
+	//"fmt"
 
-	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/g3n/engine/math32"
+	"github.com/g3n/engine/geometry"
+	"github.com/g3n/engine/material"
+	"github.com/g3n/engine/graphic"
+	"github.com/g3n/engine/gls"
 	"github.com/aquilax/go-perlin"
 )
 
-// Data relating to the noise map
-var resolution int = 4
+type LandscapeStruct struct {
+	Mesh 		*graphic.Mesh
 
-var noiseMaps[] *perlin.Perlin
-var samples = 15;
-var alphaMod = 1.0;
-var betaMod = (0.001*float64(resolution/2));
-var seed int64;
+	Resolution 	float32
+	NoiseMaps 	[]*perlin.Perlin
+	Samples 	int
+	AlphaMod 	float64
+	BetaMod 	float64
+	Seed 		int64
 
-// Data relating to the terrain itself
-var seaLevel uint8 = 240
+	Width, Height int64
+
+	SeaLevel 	uint8 
+}
+
+var Landscape = LandscapeStruct{
+	Resolution: 1,
+	Samples: 	15,
+	AlphaMod: 	1.0,
+	BetaMod: 	1.0,
+	Width:	50,
+	Height: 50,
+	Seed: time.Now().Unix(),
+}
+
+var arr math32.ArrayU32
 
 // yeah
 func init() {
-	seed = time.Now().Unix()
-	updateNoiseMap()
+	Landscape.Update()
+}
+
+// Function for initializing the landscape
+func (LandscapeStruct) Init() {
+	Landscape.Update()
+	Landscape.Create()
+	Landscape.Mesh.SetPosition(0,0,0)
+	scene.Add(Landscape.Mesh)
 }
 
 // Function for updating the noise maps
-func updateNoiseMap() {
-	noiseMaps = make([]*perlin.Perlin, samples)
-	for i := 1; i < samples; i++ {
-		alpha := (alphaMod/float64(samples))*float64(i)
-		beta := betaMod*float64(i)
-		noiseMaps[i] = perlin.NewPerlin(alpha,beta,2,seed/int64(i))
+func (LandscapeStruct) Update() {
+	Landscape.NoiseMaps = make([]*perlin.Perlin, Landscape.Samples)
+	for i := 1; i < Landscape.Samples; i++ {
+		alpha := (Landscape.AlphaMod/float64(Landscape.Samples))*float64(i)
+		beta := Landscape.BetaMod*float64(i)
+		Landscape.NoiseMaps[i] = perlin.NewPerlin(alpha,beta,2,Landscape.Seed/int64(i))
 	}
 }
 
-func NoiseDraw(screen *ebiten.Image) {
-	// First we want to encode the noise into an image, because ebiten's "everything is an image" metaphor means
-	// that displaying this in real time is not feasible.
+// Function for creating geometry based on the noise maps
+func (LandscapeStruct) Create() {
+	// Create the buffers
+	positions := math32.NewArrayF32(0, 0)
+	//normals := math32.NewArrayF32(0, 0)
+	uvs := math32.NewArrayF32(0, 0)
+	//indices := math32.NewArrayU32(0, 0)
 
-	img := image.NewNRGBA(image.Rect(0, 0, ScreenHeight/resolution, ScreenWidth/resolution))
+	scale := 2 // temp
 
-	// Then, for every x and y in the image
-	for y := 0; y < ScreenHeight/resolution; y++ {
-		for x := 0; x < ScreenWidth/resolution; x++ {
-			// Get what the value of noise should be at that point.
-			value := getNoiseAt(float64(x),float64(y))
+	// Then, for every y in the generated noise, 
+	mapX := Landscape.Height/int64(Landscape.Resolution)
+	mapY := Landscape.Width/int64(Landscape.Resolution)
+	for y := float32(0); int64(y) < mapX-1; y++ {
+		// And each x...
+		for x := float32(0); int64(x) < mapY-1; x++ {
 
-			// Ignore it if it's pure black
-			if(value == 0) {
-				continue
+			// Get what the value of noise should be at that point, and what should be at the next points.
+			var values map[float32]map[float32]float32 = make(map[float32]map[float32]float32)
+
+			for y_ := float32(0); y_ < 1; y_ += float32(1/scale) {
+				values[y_] = make(map[float32]float32)
+				for x_ := float32(0); x_ < 1; x_ += float32(1/scale) {
+					values[y_][x_] = getNoiseAt(x+x_, y+y_)
+				}
 			}
 
-			// Finally, set the color of the terrain, but set a different one based on the value
-			// (todo: add a proper color map system)
+			// Then add them to the vertexes array, with a different height based on the intensity of the image.
+			// based on what the value is.
 
-			"""
-			var red, green, blue uint8 = 0, 0, 0
-			switch {
-				// water
-				case value >= seaLevel-40: 		
-					blue = value
-					green = value/4
-					red = value/4
-				// submerged sand
-				case value <= seaLevel-40 && value >= seaLevel: 	
-					blue = value
-					green = value/2
-					red = value/2
-				// sand
-				case value <= seaLevel-40 && value >= seaLevel-80:
-					red = value
-					green = value
-					blue = value/4
-				// grass
-				case value <= seaLevel-80:
-					blue = value/4
-					red = value/4
-					green = value
+			for y_ := float32(0); y_ < 1; y_ += float32(1/scale) {
+				for x_ := float32(0); x_ < 1; x_ += float32(1/scale) {
+					v1 := math32.Vector3{	// top left
+						X:float32((x+x_)*(Landscape.Resolution)),
+						Y:float32((y+y_)*(Landscape.Resolution)),
+						Z:float32(values[y_][x_]/75),
+					}
+					v2 := math32.Vector3{	// top right
+						X:float32((x+x_)*(Landscape.Resolution)),
+						Y:float32((y+y_+float32(1/scale))*(Landscape.Resolution)),
+						Z:float32(values[y_][x_]/75),
+					}
+					v3 := math32.Vector3{ // bottom left
+						X:float32((x+x_+float32(1/scale))*(Landscape.Resolution)),
+						Y:float32((y+y_)*(Landscape.Resolution)),
+						Z:float32(values[y_][x_]/75),
+					}
+					v4 := math32.Vector3{ // bottom right
+						X:float32((x+x_+float32(1/scale))*(Landscape.Resolution)),
+						Y:float32((y+y_+float32(1/scale))*(Landscape.Resolution)),
+						Z:float32(values[y_][x_]/75),
+					}
+					positions.AppendVector3(&v1)
+					positions.AppendVector3(&v3)
+					positions.AppendVector3(&v2)
+					positions.AppendVector3(&v3)
+					positions.AppendVector3(&v2)
+					positions.AppendVector3(&v4)
+				}
 			}
-			"""
-
-			// Otherwise add it to the image
-			img.Set(x, y, color.NRGBA{
-				R: value,
-				G: value,
-				B: value,
-				A: 255,
-			})
+			uvs.Append(float32(x)/float32(mapX-1))
+			uvs.Append(float32(y)/float32(mapY-1))
 		}
 	}
 
-	// Scale the generated image to the screen.
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(float64(resolution)*1.3333333,float64(resolution))
+	// let the rest go into a goroutine
+	go func() {
+		geom := geometry.NewGeometry()
+		//geom.SetIndices(arr)
+		geom.AddVBO(gls.NewVBO(positions).AddAttrib(gls.VertexPosition))
+		geom.AddVBO(gls.NewVBO(positions).AddAttrib(gls.VertexNormal))
+		geom.AddVBO(gls.NewVBO(uvs).AddAttrib(gls.VertexTexcoord))	
+		//geom.SetIndices(indices)
+		mat := material.NewStandard(math32.NewColor("Yellow"))
 
-	// Then we display the generated image on screen.
-	screen.DrawImage(ebiten.NewImageFromImage(img),op)
+		Landscape.Mesh = graphic.NewMesh(geom, mat)
+		Landscape.Mesh.SetRotation(0,math.Pi,math.Pi) // :troll: 
+		Landscape.Mesh.SetScale(5.0,5.0,5.0)
+	}()
 }
 
 // Function for getting the average value of all the noise maps at a certain point.
-func getNoiseAt(x_,y_ float64) (uint8) {
+func getNoiseAt(x_,y_ float32) (float32) {
 	// the x cannot be negative because that screws up the below calculation
-	x := math.Abs(x_+math.Round(MainPlayer.PosX)+0.1)
-	y := math.Abs(y_+math.Round(MainPlayer.PosY)+0.1)
+	x := math.Abs(float64(x_)+math.Round(MainPlayer.PosX)+0.1)
+	y := math.Abs(float64(y_)+math.Round(MainPlayer.PosY)+0.1)
 
 	var value float64 = 1
-	for i := 1; i < samples; i++ {
+	for i := 1; i < Landscape.Samples; i++ {
 		// Notice the fact that we round it and add 0.1. Apparently this function fails sliently when the 
 		// value isn't a decimal.
-		value += noiseMaps[i].Noise2D(x,y)
+		value += Landscape.NoiseMaps[i].Noise2D(x,y)
 	}
-	value /= float64(samples)
+	value /= float64(Landscape.Samples)
 	// return the color but inverted (never negative, though)
-	return uint8(255-(value*255))
+	return 255-(float32(value)*255)
 }
-
-// debug function for changing the parameters of the perlin noise
-func NoiseDebug() {
-	if(ebiten.IsKeyPressed(ebiten.KeyY)) {
-		alphaMod += 0.01
-		fmt.Printf("alphaMod: %.2f\n",alphaMod)
-		updateNoiseMap()
-	}
-	if(ebiten.IsKeyPressed(ebiten.KeyU)) {
-		betaMod += 0.01
-		fmt.Printf("betaMod: %.2f\n",betaMod)
-		updateNoiseMap()
-	}
-	if(ebiten.IsKeyPressed(ebiten.KeyI)) {
-		samples += 1
-		fmt.Printf("samples: %d\n",samples)
-		updateNoiseMap()
-	}
-	if(ebiten.IsKeyPressed(ebiten.KeyH)) {
-		alphaMod -= 0.01
-		fmt.Printf("alphaMod: %.2f\n",alphaMod)
-		updateNoiseMap()
-	}
-	if(ebiten.IsKeyPressed(ebiten.KeyJ)) {
-		betaMod -= 0.01
-		fmt.Printf("betaMod: %.2f\n",betaMod)
-		updateNoiseMap()
-	}
-	if(ebiten.IsKeyPressed(ebiten.KeyK)) {
-		if(samples >= 1) {samples -= 1}
-		fmt.Printf("samples: %d\n",samples)
-		updateNoiseMap()
-	}
-	if(ebiten.IsKeyPressed(ebiten.KeyT)) {
-		seaLevel++
-	}
-	if(ebiten.IsKeyPressed(ebiten.KeyG)) {
-		seaLevel--
-	}
-}
-*/

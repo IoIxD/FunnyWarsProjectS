@@ -10,6 +10,7 @@ import (
 	"github.com/g3n/engine/graphic"
 	"github.com/g3n/engine/material"
 	"github.com/g3n/engine/math32"
+	"github.com/g3n/engine/light"
 )
 
 // Player struct
@@ -30,22 +31,27 @@ type MainPlayerStruct struct {
 var MainPlayer = MainPlayerStruct{}
 
 // Initialization function to create the player model and bind things to it.
-func (player MainPlayerStruct) Init() {
+func (MainPlayerStruct) Init() {
 	MainPlayer.TopSpeed = 2.0
 	MainPlayer.Acceleration = 0.5
 	MainPlayer.Deacceleration = (MainPlayer.Acceleration/2)
 
 	// Create a test player
 	geom := geometry.NewCube(1)
-	mat := material.NewStandard(math32.NewColor("Red"))
+	mat := material.NewStandard(math32.NewColor("White"))
 	MainPlayer.Mesh = graphic.NewMesh(geom, mat)
 	scene.Add(MainPlayer.Mesh)
+
+	// Add a light to it
+	pointLight := light.NewPoint(&math32.Color{1, 1, 1}, 100.0)
+	pointLight.SetPosition(1, 0, 2)
+	MainPlayer.Mesh.Add(pointLight)
 
 	MainPlayer.Loop()
 }
 
 // Function that runs on loop to control the player's values
-func (player MainPlayerStruct) Loop() {
+func (MainPlayerStruct) Loop() {
 	
 	MainPlayer.PosX += MainPlayer.SpeedX
 	MainPlayer.PosY += MainPlayer.SpeedY
@@ -70,7 +76,7 @@ func (player MainPlayerStruct) Loop() {
 }
 
 // Move the player
-func (player MainPlayerStruct) Move(direction string) {
+func (MainPlayerStruct) Move(direction string) {
 	switch(direction) {
 		case "left":
 			if(MainPlayer.SpeedX < -MainPlayer.TopSpeed) {
@@ -117,7 +123,7 @@ func (player MainPlayerStruct) Move(direction string) {
 
 // Make the player face a direction based on where their mouse is.
 // (todo: find a good way of not having to do this every frame)
-func (player MainPlayerStruct) Face() {
+func (MainPlayerStruct) Face() {
 	width, height := window.Get().GetSize()
 	direction := float32(math.Atan2(MousePosY - float64(height/2), MousePosX - float64(width/2)))
 	MainPlayer.Mesh.SetRotation(0,0,-direction)

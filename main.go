@@ -35,6 +35,8 @@ func main() {
 	MainCamera.SetPosition(0, 0, 30)
 	scene.Add(MainCamera)
 
+	//camera.NewOrbitControl(MainCamera)
+
 	// Set up callback to update viewport and camera aspect ratio when the window is resized
 	onResize := func(evname string, ev interface{}) {
 		// Get framebuffer size and update viewport accordingly
@@ -55,14 +57,12 @@ func main() {
 	a.Subscribe(window.OnMouseDown, MouseDown)
 	a.Subscribe(window.OnMouseUp, MouseUp)
 
-	// init function from player.go
-	MainPlayer.Init()
+	
+	MainPlayer.Init()		// init function from player.go
+	Landscape.Init()		// init function from generation.go
 
 	// Create and add lights to the scene
-	scene.Add(light.NewAmbient(&math32.Color{1.0, 1.0, 1.0}, 0.8))
-	pointLight := light.NewPoint(&math32.Color{1, 1, 1}, 5.0)
-	pointLight.SetPosition(1, 0, 2)
-	scene.Add(pointLight)
+	scene.Add(light.NewDirectional(&math32.Color{1.0, 1.0, 1.0}, 0.8))
 
 	// Create and add an axis helper to the scene
 	axes := helper.NewAxes(0.5)
