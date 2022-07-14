@@ -17,6 +17,8 @@ import (
 const ScreenWidth = 512
 const ScreenHeight = 384
 
+const OrbitControl = false
+
 var scene *core.Node
 
 var MainCamera *camera.Camera
@@ -35,7 +37,9 @@ func main() {
 	MainCamera.SetPosition(0, 0, 30)
 	scene.Add(MainCamera)
 
-	//camera.NewOrbitControl(MainCamera)
+	if(OrbitControl) {
+		camera.NewOrbitControl(MainCamera)
+	}
 
 	// Set up callback to update viewport and camera aspect ratio when the window is resized
 	onResize := func(evname string, ev interface{}) {
@@ -59,10 +63,10 @@ func main() {
 
 	
 	MainPlayer.Init()		// init function from player.go
-	Landscape.Init()		// init function from generation.go
+	TestLevel.Init() 		// init function from testlevel.go
 
 	// Create and add lights to the scene
-	scene.Add(light.NewDirectional(&math32.Color{1.0, 1.0, 1.0}, 0.8))
+	scene.Add(light.NewAmbient(math32.NewColor("White"), 0.2))
 
 	// Create and add an axis helper to the scene
 	axes := helper.NewAxes(0.5)

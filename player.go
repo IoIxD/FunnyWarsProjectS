@@ -4,6 +4,7 @@ package main
 
 import (
 	"math"
+	//"fmt"
 
 	"github.com/g3n/engine/window"
 	"github.com/g3n/engine/geometry"
@@ -39,13 +40,16 @@ func (MainPlayerStruct) Init() {
 	// Create a test player
 	geom := geometry.NewCube(1)
 	mat := material.NewStandard(math32.NewColor("White"))
-	MainPlayer.Mesh = graphic.NewMesh(geom, mat)
-	scene.Add(MainPlayer.Mesh)
 
-	// Add a light to it
-	pointLight := light.NewPoint(&math32.Color{1, 1, 1}, 100.0)
-	pointLight.SetPosition(1, 0, 2)
+	// Make it emit light
+	mat.SetEmissiveColor(math32.NewColor("White"))
+	MainPlayer.Mesh = graphic.NewMesh(geom, mat)
+
+	pointLight := light.NewPoint(math32.NewColor("White"), 1)
+	pointLight.SetPosition(0, 0, 1)
 	MainPlayer.Mesh.Add(pointLight)
+
+	scene.Add(MainPlayer.Mesh)
 
 	MainPlayer.Loop()
 }
@@ -71,7 +75,9 @@ func (MainPlayerStruct) Loop() {
 
 	go MainPlayer.Face()
 
-	go MainCamera.SetPosition(float32(MainPlayer.PosX/5),float32(MainPlayer.PosY/5),30)
+	if(!OrbitControl) {
+		go MainCamera.SetPosition(float32(MainPlayer.PosX/5),float32(MainPlayer.PosY/5),30)
+	}
 
 }
 
