@@ -15,7 +15,7 @@ import (
 )
 
 // Player struct
-type MainPlayerStruct struct {
+type PlayerStruct struct {
 	Mesh 								*graphic.Mesh
 
 	PosX 								float64
@@ -29,13 +29,13 @@ type MainPlayerStruct struct {
 	left, right, up, down 				bool
 }
 
-var MainPlayer = MainPlayerStruct{}
+var Player = PlayerStruct{}
 
 // Initialization function to create the player model and bind things to it.
-func (MainPlayerStruct) Init() {
-	MainPlayer.TopSpeed = 2.0
-	MainPlayer.Acceleration = 0.5
-	MainPlayer.Deacceleration = (MainPlayer.Acceleration/2)
+func (PlayerStruct) Init() {
+	Player.TopSpeed = 2.0
+	Player.Acceleration = 0.5
+	Player.Deacceleration = (Player.Acceleration/2)
 
 	// Create a test player
 	geom := geometry.NewCube(1)
@@ -43,96 +43,96 @@ func (MainPlayerStruct) Init() {
 
 	// Make it emit light
 	mat.SetEmissiveColor(math32.NewColor("White"))
-	MainPlayer.Mesh = graphic.NewMesh(geom, mat)
+	Player.Mesh = graphic.NewMesh(geom, mat)
 
 	pointLight := light.NewPoint(math32.NewColor("White"), 1)
 	pointLight.SetPosition(0, 0, 1)
-	MainPlayer.Mesh.Add(pointLight)
+	Player.Mesh.Add(pointLight)
 
-	scene.Add(MainPlayer.Mesh)
+	scene.Add(Player.Mesh)
 
-	MainPlayer.Loop()
+	Player.Loop()
 }
 
 // Function that runs on loop to control the player's values
-func (MainPlayerStruct) Loop() {
+func (PlayerStruct) Loop() {
 	
-	MainPlayer.PosX += MainPlayer.SpeedX
-	MainPlayer.PosY += MainPlayer.SpeedY
+	Player.PosX += Player.SpeedX
+	Player.PosY += Player.SpeedY
 
 	// Make sure their speed always eventually returns to 0.
-	if(MainPlayer.SpeedX < 0) {MainPlayer.SpeedX += MainPlayer.Deacceleration}
-	if(MainPlayer.SpeedX > 0) {MainPlayer.SpeedX -= MainPlayer.Deacceleration}
-	if(MainPlayer.SpeedY < 0) {MainPlayer.SpeedY += MainPlayer.Deacceleration}
-	if(MainPlayer.SpeedY > 0) {MainPlayer.SpeedY -= MainPlayer.Deacceleration}
+	if(Player.SpeedX < 0) {Player.SpeedX += Player.Deacceleration}
+	if(Player.SpeedX > 0) {Player.SpeedX -= Player.Deacceleration}
+	if(Player.SpeedY < 0) {Player.SpeedY += Player.Deacceleration}
+	if(Player.SpeedY > 0) {Player.SpeedY -= Player.Deacceleration}
 
-	if(MainPlayer.left) 	{go MainPlayer.Move("left")}
-	if(MainPlayer.right)	{go MainPlayer.Move("right")}
-	if(MainPlayer.up) 		{go MainPlayer.Move("up")}
-	if(MainPlayer.down) 	{go MainPlayer.Move("down")}
+	if(Player.left) 	{go Player.Move("left")}
+	if(Player.right)	{go Player.Move("right")}
+	if(Player.up) 		{go Player.Move("up")}
+	if(Player.down) 	{go Player.Move("down")}
 
-	go MainPlayer.Mesh.SetPosition(float32(MainPlayer.PosX/5),float32(MainPlayer.PosY/5),float32(MainPlayer.PosZ/5))
+	go Player.Mesh.SetPosition(float32(Player.PosX/5),float32(Player.PosY/5),float32(Player.PosZ/5))
 
-	go MainPlayer.Face()
+	go Player.Face()
 
 	if(!OrbitControl) {
-		go MainCamera.SetPosition(float32(MainPlayer.PosX/5),float32(MainPlayer.PosY/5),30)
+		go MainCamera.SetPosition(float32(Player.PosX/5),float32(Player.PosY/5),30)
 	}
 
 }
 
 // Move the player
-func (MainPlayerStruct) Move(direction string) {
+func (PlayerStruct) Move(direction string) {
 	switch(direction) {
 		case "left":
-			if(MainPlayer.SpeedX < -MainPlayer.TopSpeed) {
+			if(Player.SpeedX < -Player.TopSpeed) {
 				break
 			}
 			// See if they're already moving vertically but not horizontally.
-			if(MainPlayer.SpeedY != 0 && MainPlayer.SpeedX == 0) {
+			if(Player.SpeedY != 0 && Player.SpeedX == 0) {
 				// If they are, then they should start moving horizontally at the vertical speed.
 				// (but it should negative or positive based on which direction they should go in)P
-				MainPlayer.SpeedX = -math.Abs(MainPlayer.SpeedY)
+				Player.SpeedX = -math.Abs(Player.SpeedY)
 			} else {
 				// Otherwise their speed should be changed as normal.
-				MainPlayer.SpeedX -= MainPlayer.Acceleration
+				Player.SpeedX -= Player.Acceleration
 			}
 		case "right":
-			if(MainPlayer.SpeedX > MainPlayer.TopSpeed) {
+			if(Player.SpeedX > Player.TopSpeed) {
 				break
 			}
-			if(MainPlayer.SpeedY != 0 && MainPlayer.SpeedX == 0) {
-				MainPlayer.SpeedX = math.Abs(MainPlayer.SpeedY)
+			if(Player.SpeedY != 0 && Player.SpeedX == 0) {
+				Player.SpeedX = math.Abs(Player.SpeedY)
 			} else {
-				MainPlayer.SpeedX += MainPlayer.Acceleration
+				Player.SpeedX += Player.Acceleration
 			}
 		case "down":
-			if(MainPlayer.SpeedY < -MainPlayer.TopSpeed) {
+			if(Player.SpeedY < -Player.TopSpeed) {
 				break
 			}
-			if(MainPlayer.SpeedX != 0 && MainPlayer.SpeedY == 0) {
-				MainPlayer.SpeedY = -math.Abs(MainPlayer.SpeedX)
+			if(Player.SpeedX != 0 && Player.SpeedY == 0) {
+				Player.SpeedY = -math.Abs(Player.SpeedX)
 			} else {
-				MainPlayer.SpeedY -= MainPlayer.Acceleration
+				Player.SpeedY -= Player.Acceleration
 			}
 		case "up":
-			if(MainPlayer.SpeedY > MainPlayer.TopSpeed) {
+			if(Player.SpeedY > Player.TopSpeed) {
 				break
 			}
-			if(MainPlayer.SpeedX != 0 && MainPlayer.SpeedY == 0) {
-				MainPlayer.SpeedY = math.Abs(MainPlayer.SpeedX)
+			if(Player.SpeedX != 0 && Player.SpeedY == 0) {
+				Player.SpeedY = math.Abs(Player.SpeedX)
 			} else {
-				MainPlayer.SpeedY += MainPlayer.Acceleration
+				Player.SpeedY += Player.Acceleration
 			}
 	}
 }
 
 // Make the player face a direction based on where their mouse is.
 // (todo: find a good way of not having to do this every frame)
-func (MainPlayerStruct) Face() {
+func (PlayerStruct) Face() {
 	width, height := window.Get().GetSize()
 	direction := float32(math.Atan2(MousePosY - float64(height/2), MousePosX - float64(width/2)))
-	MainPlayer.Mesh.SetRotation(0,0,-direction)
+	Player.Mesh.SetRotation(0,0,-direction)
 }
 
 /*
@@ -145,11 +145,11 @@ var err error
 
 func init() {	
 	player.TopSpeed = 2.0
-	MainPlayer.Acceleration = 0.5
-	MainPlayer.Deacceleration = 0.25
+	Player.Acceleration = 0.5
+	Player.Deacceleration = 0.25
 
-	MainPlayer.PosX = 480.0
-	MainPlayer.PosY = 480.0
+	Player.PosX = 480.0
+	Player.PosY = 480.0
 
 	PlayerIMG, _, err = ebitenutil.NewImageFromFile("gfx/player_placeholder.png")
 	if(err != nil) {log.Fatal(err)}
@@ -164,11 +164,11 @@ func PlayerDraw(screen *ebiten.Image) {
 
 	// Rotation
 	op.GeoM.Translate(-8, -8)
-	op.GeoM.Rotate(MainPlayer.Direction)
+	op.GeoM.Rotate(Player.Direction)
 	op.GeoM.Translate(8, 8)
 
 	// Translation
-	//op.GeoM.Translate(MainPlayer.PosX, MainPlayer.PosY)
+	//op.GeoM.Translate(Player.PosX, Player.PosY)
 	op.GeoM.Translate((ScreenWidth/2)-8,(ScreenHeight/2)-8)
 	
 	screen.DrawImage(PlayerIMG, op)

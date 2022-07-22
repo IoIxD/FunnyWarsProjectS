@@ -62,7 +62,7 @@ func main() {
 	a.Subscribe(window.OnMouseUp, MouseUp)
 
 	
-	MainPlayer.Init()		// init function from player.go
+	Player.Init()		// init function from player.go
 	TestLevel.Init() 		// init function from testlevel.go
 
 	// Create and add lights to the scene
@@ -80,6 +80,6 @@ func main() {
 	a.Run(func(renderer *renderer.Renderer, deltaTime time.Duration) {
 		a.Gls().Clear(gls.DEPTH_BUFFER_BIT | gls.STENCIL_BUFFER_BIT | gls.COLOR_BUFFER_BIT)
 		renderer.Render(scene, MainCamera)
-		go MainPlayer.Loop()
+		go Player.Loop()
 	})
 }

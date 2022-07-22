@@ -8,19 +8,19 @@ import (
 func OnKeyPress(evname string, ev interface{}) {
 	kev := ev.(*window.KeyEvent)
 	switch kev.Key {
-		case window.KeyA, window.KeyLeft:	MainPlayer.left = true
-		case window.KeyW, window.KeyUp: 	MainPlayer.up = true
-		case window.KeyD, window.KeyRight: 	MainPlayer.right = true
-		case window.KeyS, window.KeyDown: 	MainPlayer.down = true
+		case window.KeyA, window.KeyLeft:	Player.left = true
+		case window.KeyW, window.KeyUp: 	Player.up = true
+		case window.KeyD, window.KeyRight: 	Player.right = true
+		case window.KeyS, window.KeyDown: 	Player.down = true
 	}
 }
 
 func OnKeyRelease(evname string, ev interface{}) {
 	kev := ev.(*window.KeyEvent)
 	switch kev.Key {
-		case window.KeyA, window.KeyLeft:	MainPlayer.left = false
-		case window.KeyW, window.KeyUp: 	MainPlayer.up = false
-		case window.KeyD, window.KeyRight: 	MainPlayer.right = false
-		case window.KeyS, window.KeyDown: 	MainPlayer.down = false
+		case window.KeyA, window.KeyLeft:	Player.left = false
+		case window.KeyW, window.KeyUp: 	Player.up = false
+		case window.KeyD, window.KeyRight: 	Player.right = false
+		case window.KeyS, window.KeyDown: 	Player.down = false
 	}
 }
